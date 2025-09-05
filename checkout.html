@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Thanh toán</title>
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/shop.css" />
+  <!-- Facebook Pixel (multi IDs) -->
+<script>
+  (function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod ?
+  n.callMethod.apply(n,arguments) : n.queue.push(arguments)}; if(!f._fbq) f._fbq=n;
+  n.push=n; n.loaded=!0; n.version='2.0'; n.queue=[]; t=b.createElement(e); t.async=!0;
+  t.src=v; s=b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t,s)
+  })(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+
+  fbq('init', '2551563688514905');
+  fbq('init', '1738204417066160');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=2551563688514905&ev=PageView&noscript=1"
+/></noscript>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1738204417066160&ev=PageView&noscript=1"
+/></noscript>
+
+</head>
+<body>
+  <header class="site-header">
+  <div class="container">
+    <a href="/" class="logo">F-Sports</a>
+    <nav class="nav">
+      <a href="/collections.html?c=pickleball">Pickleball</a>
+      <a href="/collections.html?c=sup">SUP</a>
+      <a href="/collections.html?c=sandals">Sandals</a>
+      <a href="/collections.html?c=bags">Bags</a>
+      <a href="/collections.html?c=art">Art</a>
+    </nav>
+    <div class="actions">
+      <input id="siteSearch" type="search" placeholder="Tìm sản phẩm…" />
+      <button id="cartButton" class="cart-btn">🛒 <span id="cartCount">0</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- Mini Cart (popup) -->
+<div id="miniCart" class="mini-cart" hidden>
+  <div class="mini-cart__panel">
+    <div class="mini-cart__head">
+      <strong>Giỏ hàng</strong>
+      <button id="miniCartClose">✕</button>
+    </div>
+    <div id="miniCartItems" class="mini-cart__items"></div>
+    <div class="mini-cart__foot">
+      <div class="row">
+        <span>Tạm tính</span>
+        <strong id="miniCartSubtotal">0đ</strong>
+      </div>
+      <a href="/checkout.html" class="btn-primary">Thanh toán</a>
+    </div>
+  </div>
+</div>
+
+  <main class="container">
+  <h1>Thanh toán</h1>
+
+  <section style="margin-top:20px">
+    <h2>Thông tin người nhận</h2>
+    <form id="orderForm" onsubmit="return false;">
+      <div class="row">
+        <label style="flex:1">Họ tên<br>
+          <input id="cName" required placeholder="Nguyễn Văn A" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;">
+        </label>
+        <label style="flex:1">Số điện thoại<br>
+          <input id="cPhone" required placeholder="09xxxxxxxx" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;">
+        </label>
+      </div>
+      <label>Địa chỉ<br>
+        <input id="cAddress" required placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+               style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;">
+      </label>
+      <label>Ghi chú (tuỳ chọn)<br>
+        <textarea id="cNote" rows="3" placeholder="Giao giờ hành chính, kiểm hàng..."
+                  style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;"></textarea>
+      </label>
+    </form>
+  </section>
+
+  <div class="checkout-grid">
+    <section>
+      <h2>Sản phẩm</h2>
+      <div id="checkoutItems"></div>
+    </section>
+    <aside>
+      <h2>Tổng quan</h2>
+      <div class="row"><span>Tạm tính</span><strong id="ckSubtotal">0đ</strong></div>
+      <div class="row"><span>Phí vận chuyển</span><strong id="ckShip">0đ</strong></div>
+      <hr />
+      <div class="row total"><span>Tổng thanh toán</span><strong id="ckTotal">0đ</strong></div>
+      <button id="btnPlaceOrder" class="btn-primary">Đặt hàng</button>
+    </aside>
+  </div>
+</main>
+
+<script src="/js/app.js"></script>
+<script src="/js/cart.js"></script>
+<script src="/js/store.js"></script>
+<script>
+  const MAKE_WEBHOOK_URL = "https://hook.eu2.make.com/jxjqljoheym4735mevg8fedk93x74301"; // thay bằng webhook của bạn nếu khác
+
+  const ci = document.getElementById('checkoutItems');
+  const cart = Cart.get();
+  const priceFmt = (n)=> Cart.format(n);
+
+  async function deriveShippingRule() {
+    const all = await Store.all();
+    let feeList = [], overList = [];
+    for (const it of (cart.items || [])) {
+      const p = all.find(x => x.id === it.id);
+      if (p?.shipping?.fee != null) feeList.push(p.shipping.fee);
+      if (p?.shipping?.freeOver != null) overList.push(p.shipping.freeOver);
+    }
+    const fee = feeList.length ? Math.min(...feeList) : 30000;
+    const freeOver = overList.length ? Math.min(...overList) : 500000;
+    return { fee, freeOver };
+  }
+
+  function itemRow(i) {
+    const hasVoucher = (i.finalUnitPrice || i.price) !== i.price;
+    return `
+      <div class="ck-item">
+        <img src="${i.image}" alt="${i.title}" />
+        <div class="ck-meta">
+          <div class="t">${i.title}</div>
+          <div class="s">${i.variantLabel || ''}</div>
+          ${hasVoucher ? `<div class="v">${i.voucherLabel || 'Voucher áp dụng'}</div>` : ''}
+          <div class="q">
+            <button onclick="Cart.dec('${i.key}'); location.reload()">−</button>
+            <span>${i.qty}</span>
+            <button onclick="Cart.inc('${i.key}'); location.reload()">+</button>
+            <button class="link" onclick="Cart.remove('${i.key}'); location.reload()">Xóa</button>
+          </div>
+        </div>
+        <div class="ck-price">
+          ${hasVoucher ? `
+            <div style="text-decoration:line-through;color:#888;">${priceFmt(i.price * i.qty)}</div>
+            <div><strong>${priceFmt((i.finalUnitPrice || i.price) * i.qty)}</strong></div>
+          ` : `<div><strong>${priceFmt(i.price * i.qty)}</strong></div>`}
+        </div>
+      </div>
+    `;
+  }
+
+  (async function render() {
+    ci.innerHTML = (cart.items||[]).map(itemRow).join('');
+
+    const subAfter = Cart.subtotal();
+    const shipRule = await deriveShippingRule();
+    const ship = subAfter >= shipRule.freeOver ? 0 : shipRule.fee;
+    const total = subAfter + ship;
+
+    document.getElementById('ckSubtotal').textContent = priceFmt(subAfter);
+    document.getElementById('ckShip').textContent = priceFmt(ship);
+    document.getElementById('ckTotal').textContent = priceFmt(total);
+
+    document.getElementById('btnPlaceOrder').onclick = async () => {
+      const name = document.getElementById('cName')?.value?.trim();
+      const phone = document.getElementById('cPhone')?.value?.trim();
+      const address = document.getElementById('cAddress')?.value?.trim();
+      const note = document.getElementById('cNote')?.value?.trim() || "";
+
+      if (!name || !phone || !address) {
+        alert('Vui lòng điền đầy đủ Họ tên, SĐT và Địa chỉ.');
+        return;
+      }
+
+      const orderId = 'FS' + Date.now();
+      const payload = {
+        orderId,
+        customer: { name, phone, address, note },
+        pricing: { subtotalAfterVoucher: subAfter, shippingFee: ship, total },
+        items: (cart.items||[]).map(i => ({
+          id: i.id,
+          title: i.title,
+          variantId: i.variantId || null,
+          variantLabel: i.variantLabel || "",
+          qty: i.qty,
+          unitPriceBefore: i.price,
+          unitPriceFinal: i.finalUnitPrice || i.price,
+          voucherLabel: i.voucherLabel || ""
+        })),
+        meta: { page: location.href, userAgent: navigator.userAgent, ts: new Date().toISOString() }
+      };
+
+      try {
+        await fetch(MAKE_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        window.Pixel?.purchase(total);
+
+        alert('Đặt hàng thành công! Chúng tôi sẽ liên hệ xác nhận.');
+        Cart.clear();
+        location.href = '/';
+      } catch (e) {
+        console.error(e);
+        alert('Có lỗi khi gửi đơn. Vui lòng thử lại sau.');
+      }
+    };
+  })();
+</script>
+
+</body>
+</html>

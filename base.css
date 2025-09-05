@@ -1,0 +1,16 @@
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,"Be Vietnam Pro",Arial;background:#fafafa;color:#111}
+.container{max-width:1080px;margin:0 auto;padding:16px}
+.site-header{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;z-index:10}
+.site-header .container{display:flex;gap:12px;align-items:center}
+.logo{font-weight:800;text-decoration:none;color:#e00000}
+.nav{display:flex;gap:12px;flex:1;flex-wrap:wrap}
+.nav a{text-decoration:none;color:#333}
+.actions{display:flex;gap:8px;align-items:center}
+.actions input[type="search"]{padding:8px 10px;border:1px solid #ddd;border-radius:8px;min-width:200px}
+.cart-btn{padding:8px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer}
+.btn-primary{display:inline-block;padding:10px 14px;border:none;border-radius:8px;background:#111;color:#fff;text-decoration:none;cursor:pointer}
+.link{background:none;border:none;color:#e00000;text-decoration:underline;cursor:pointer}
+.row{display:flex;align-items:center;justify-content:space-between;margin:8px 0}
+.total{font-size:18px}
+hr{border:none;border-top:1px solid #eee}

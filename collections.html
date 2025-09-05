@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>F-Sports – Trang chủ</title>
+  <title>Bộ sưu tập</title>
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/shop.css" />
   <!-- Facebook Pixel (multi IDs) -->
@@ -63,28 +63,22 @@
 </div>
 
   <main class="container">
-  <section class="hero">
-    <h1>Thể thao & Lifestyle – Mua sắm thông minh</h1>
-    <p>Chọn ngành hàng để bắt đầu</p>
-    <div class="cat-grid">
-      <a class="cat" href="/collections.html?c=pickleball">Pickleball</a>
-      <a class="cat" href="/collections.html?c=sup">SUP</a>
-      <a class="cat" href="/collections.html?c=sandals">Sandals</a>
-      <a class="cat" href="/collections.html?c=bags">Bags</a>
-      <a class="cat" href="/collections.html?c=art">Art</a>
-    </div>
-  </section>
-  <section>
-    <h2>Sản phẩm nổi bật</h2>
-    <div id="homeFeatured" class="prod-grid"></div>
-  </section>
+  <h1 id="colTitle">Bộ sưu tập</h1>
+  <div class="filters">
+    <select id="sortSel">
+      <option value="default">Mặc định</option>
+      <option value="priceAsc">Giá ↑</option>
+      <option value="priceDesc">Giá ↓</option>
+    </select>
+  </div>
+  <div id="colList" class="prod-grid"></div>
 </main>
 
 <script src="/js/app.js"></script>
 <script src="/js/cart.js"></script>
 <script src="/js/ui-cart.js"></script>
 <script src="/js/store.js"></script>
-<script src="/js/page-home.js"></script>
+<script src="/js/page-collections.js"></script>
 
 </body>
 </html>

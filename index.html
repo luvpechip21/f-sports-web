@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo Đặt Hàng – Gửi Make.com</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 16px;line-height:1.5}
+    h1{font-size:22px;margin:0 0 12px}
+    label{display:block;margin-top:10px;font-weight:600}
+    input,button{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:16px}
+    button{background:#111;color:#fff;margin-top:16px;cursor:pointer}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .note{background:#f6f7f9;border:1px dashed #c9ced6;padding:10px;border-radius:8px;margin:12px 0}
+    .ok{color:#007a1c}
+    .err{color:#b00020}
+  </style>
+</head>
+<body>
+  <h1>Demo Form Đặt Hàng → Make Webhook</h1>
+  <div class="note">
+    <strong>Hướng dẫn:</strong> Mở file này trên hosting của bạn và thay <code>WEBHOOK_URL</code>
+    trong mã phía dưới bằng link webhook của Make (dạng <code>https://hook.us1.make.com/xxxx</code>).
+  </div>
+
+  <form id="orderForm">
+    <label>Họ tên</label>
+    <input type="text" name="name" placeholder="Nguyễn Văn A" required>
+
+    <div class="row">
+      <div>
+        <label>Số điện thoại</label>
+        <input type="tel" name="phone" placeholder="09xxxxxxxx" required>
+      </div>
+      <div>
+        <label>Giá (VND)</label>
+        <input type="number" name="price" value="269000" min="0" required>
+      </div>
+    </div>
+
+    <label>Địa chỉ</label>
+    <input type="text" name="address" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" required>
+
+    <div class="row">
+      <div>
+        <label>Sản phẩm</label>
+        <input type="text" name="product" value="Túi Pickleball" required>
+      </div>
+      <div>
+        <label>Số lượng</label>
+        <input type="number" name="qty" value="1" min="1" required>
+      </div>
+    </div>
+
+    <button type="submit">Đặt Hàng</button>
+  </form>
+
+  <p id="status"></p>
+
+<script>
+const WEBHOOK_URL = "https://hook.us2.make.com/7vq13lzphuycaovw5q7e3x6ah3qjpcwo"; // TODO: thay bằng webhook của bạn
+
+document.getElementById("orderForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form).entries());
+  // ép kiểu số
+  data.price = Number(data.price||0);
+  data.qty   = Number(data.qty||1);
+  data.total = data.price * data.qty;
+
+  const status = document.getElementById("status");
+  status.textContent = "Đang gửi...";
+  status.className = "";
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error(res.status + " " + res.statusText);
+    status.textContent = "✅ Gửi thành công! Vui lòng kiểm tra Google Sheet và email.";
+    status.className = "ok";
+    form.reset();
+  } catch (err) {
+    status.textContent = "❌ Lỗi gửi: " + err.message;
+    status.className = "err";
+  }
+});
+</script>
+</body>
+</html>

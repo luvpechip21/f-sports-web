@@ -1,0 +1,10 @@
+<h2>📦 Đơn hàng mới từ Website</h2>
+<p><strong>Tên:</strong> {{1.name}}</p>
+<p><strong>SĐT:</strong> {{1.phone}}</p>
+<p><strong>Địa chỉ:</strong> {{1.address}}</p>
+<p><strong>Sản phẩm:</strong> {{1.product}}</p>
+<p><strong>Giá:</strong> {{ formatNumber( toNumber(1.price); 0; ","; "." ) }} ₫</p>
+<p><strong>Số lượng:</strong> {{1.qty}}</p>
+<p><strong>Tổng tiền:</strong> {{ formatNumber( toNumber(1.price) * toNumber(1.qty); 0; ","; "." ) }} ₫</p>
+<hr>
+<p><strong>Thời gian đặt hàng:</strong> {{ formatDate( now; "HH:mm dd/MM/yyyy"; "Asia/Ho_Chi_Minh") }}</p>
